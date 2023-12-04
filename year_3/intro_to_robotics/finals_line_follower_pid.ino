@@ -41,7 +41,7 @@ int sensorValues[sensorCount];
 void setup() {
   pinMode(pinIRLeft, INPUT);
   pinMode(pinIRMiddle, INPUT);
-  pinMode(R, INPUT);
+  pinMode(pinIRRight, INPUT);
 
   pinMode(pinMotorLA, OUTPUT);
   pinMode(pinMotorLB, OUTPUT);
