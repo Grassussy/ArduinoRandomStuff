@@ -1,7 +1,7 @@
 // pins for the ir sensors
 const int pinIRLeft = A0;
 const int pinIRMiddle = A1;
-const int pinIRight = A2;
+const int pinIRRight = A2;
 
 // pins for the motors
 const int pinMotorLA = 13;
@@ -17,9 +17,9 @@ int motorRSpeed = 0;
 int motorSpeed;
 
 // parameters used for the PID controller
-float kp = 1;
-float ki = 0;
-float kd = 0;
+float kp = 8;
+float ki = 0.0001;
+float kd = 2;
 
 // values passed to the PID controller
 int p = 1;
@@ -31,9 +31,9 @@ int error = 0;
 int lastError = 0;
 
 // constants for the motors speed
-const int minSpeed = -255;
-const int maxSpeed = 255;
-const int baseSpeed = 255;
+const int minSpeed = -150;
+const int maxSpeed = 150;
+const int baseSpeed = 100;
 
 const int sensorCount = 3;
 int sensorValues[sensorCount];
@@ -41,7 +41,7 @@ int sensorValues[sensorCount];
 void setup() {
   pinMode(pinIRLeft, INPUT);
   pinMode(pinIRMiddle, INPUT);
-  pinMode(pinIRight, INPUT);
+  pinMode(R, INPUT);
 
   pinMode(pinMotorLA, OUTPUT);
   pinMode(pinMotorLB, OUTPUT);
@@ -50,8 +50,6 @@ void setup() {
 
   pinMode(pinMotorLEnable, OUTPUT);
   pinMode(pinMotorREnable, OUTPUT);
-
-  lastError = computeError();
 }
 
 void loop() {
@@ -65,15 +63,20 @@ int computeError() {
 
   for (int i = 0; i < 3; i++) {
     sensorValues[i] = analogRead(i);
+    if (sensorValues[i] < 0) {
+      sensorValues[i] = 0;
+    } else if (sensorValues[i] > 1000) {
+      sensorValues[i] = 1000;
+    }
     sensorAverage += sensorValues[i] * i * 1000;
     sensorSum += sensorValues[i];
   }
 
-  return map(sensorAverage / sensorSum, 0, 2000, -20, 20);
+  return map(float(sensorAverage / sensorSum), 0, 2000, -50, 50);
 }
 
 void pidControl(float kp, float ki, float kd) {
-  error = computeError();  // need to find how to get error
+  error = computeError();
 
   p = error;
   i += error;
@@ -98,7 +101,7 @@ void computeMotorsSpeed() {
 }
 
 void setMotorSpeed(int motorLSpeed, int motorRSpeed) {
-  motorLSpeed = -motorLSpeed;
+  // motorLSpeed = -motorLSpeed;
   if (motorLSpeed == 0) {
     digitalWrite(pinMotorLA, LOW);
     digitalWrite(pinMotorLB, LOW);
